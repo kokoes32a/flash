@@ -1,1 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة الأدمن</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- إضافة مكتبة Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>إدارة شحنات العملاء</h2>
+        <div id="clientsContainer"></div>
+    </div>
 
+    <script>
+        const clients = JSON.parse(localStorage.getItem('clients')) || {};
+
+        function displayClients() {
+            const container = document.getElementById('clientsContainer');
+            container.innerHTML = ''; // تنظيف المحتوى السابق
+
+            for (const username in clients) {
+                const clientData = clients[username];
+
+                // التحقق مما إذا كان العميل لديه شحنات
+                if (clientData.shipments && clientData.shipments.length > 0) {
+                    const clientDiv = document.createElement('div');
+                    clientDiv.classList.add('client');
+                    clientDiv.innerHTML = `<h3>العميل: ${username} <i class="fas fa-user"></i></h3>`; // أيقونة العميل
+
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>اسم العميل</th>
+                                <th>عنوان العميل</th>
+                                <th>التحصيل بالشحن</th>
+                                <th>حالة الشحنة</th>
+                                <th>تعديل الحالة</th>
+                                <th>عمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${clientData.shipments.map((shipment, index) => `
+                                <tr>
+                                    <td>${shipment.name}</td>
+                                    <td>${shipment.address}</td>
+                                    <td>${shipment.collection}</td>
+                                    <td>
+                                        <select onchange="updateShipmentStatus('${username}', ${index}, this.value)">
+                                            <option value="في انتظار التحميل" ${shipment.status === 'في انتظار التحميل' ? 'selected' : ''}>في انتظار التحميل</option>
+                                            <option value="تم الشحن" ${shipment.status === 'تم الشحن' ? 'selected' : ''}>تم الشحن</option>
+                                            <option value="تم التسليم" ${shipment.status === 'تم التسليم' ? 'selected' : ''}>تم التسليم</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button onclick="deleteShipment('${username}', ${index}')">
+                                            <i class="fas fa-trash-alt"></i> حذف
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('') || `<tr><td colspan="6">لا توجد شحنات لهذا العميل.</td></tr>`}
+                        </tbody>
+                    `;
+
+                    clientDiv.appendChild(table);
+                    container.appendChild(clientDiv);
+                }
+            }
+        }
+
+        function updateShipmentStatus(username, index, newStatus) {
+            clients[username].shipments[index].status = newStatus;
+            localStorage.setItem('clients', JSON.stringify(clients));
+            displayClients(); // تحديث العرض بعد التعديل
+        }
+
+        function deleteShipment(username, index) {
+            clients[username].shipments.splice(index, 1); // حذف الشحنة
+            localStorage.setItem('clients', JSON.stringify(clients)); // حفظ التعديلات
+            displayClients(); // تحديث العرض
+        }
+
+        // عرض العملاء عند تحميل الصفحة
+        displayClients();
+    </script>
+</body>
+</html>

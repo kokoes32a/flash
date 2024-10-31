@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة العميل</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>شحناتك</h2>
+        <table id="shipmentTable">
+            <thead>
+                <tr>
+                    <th>اسم العميل</th>
+                    <th>عنوان العميل</th>
+                    <th>التحصيل بالشحن</th>
+                    <th>حالة الشحنة</th>
+                    <th>العمليات</th>
+                </tr>
+            </thead>
+            <tbody id="shipmentTableBody"></tbody>
+        </table>
+        <button onclick="addShipment()">إضافة شحنة جديدة</button>
+    </div>
+
+    <script>
+        const clients = JSON.parse(localStorage.getItem('clients')) || {};
+        const username = localStorage.getItem('clientUsername'); // تأكد من تخزين اسم المستخدم عند تسجيل الدخول
+        const userShipments = clients[username]?.shipments || [];
+
+        userShipments.forEach(shipment => {
+            addRowToTable(shipment.name, shipment.address, shipment.collection, shipment.status);
+        });
+
+        function addRowToTable(name, address, collection, status) {
+            const newRow = `
+                <tr>
+                    <td><input type="text" value="${name}" onchange="updateShipment(event, 'name')"></td>
+                    <td><input type="text" value="${address}" onchange="updateShipment(event, 'address')"></td>
+                    <td><input type="text" value="${collection}" onchange="updateShipment(event, 'collection')"></td>
+                    <td>${status}</td>
+                    <td><button onclick="deleteShipment(event)">حذف</button></td>
+                </tr>
+            `;
+            document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
+        }
+
+        function addShipment() {
+            const name = prompt("اسم العميل:");
+            const address = prompt("عنوان العميل:");
+            const collection = prompt("التحصيل بالشحن:");
+            const status = 'في انتظار التحميل';
+
+            if (name && address && collection) {
+                const newShipment = { name, address, collection, status };
+                clients[username].shipments.push(newShipment);
+                localStorage.setItem('clients', JSON.stringify(clients));
+                addRowToTable(name, address, collection, status);
+            }
+        }
+
+        function updateShipment(event, field) {
+            const rowIndex = event.target.parentNode.parentNode.rowIndex - 1;
+            const value = event.target.value;
+            clients[username].shipments[rowIndex][field] = value;
+            localStorage.setItem('clients', JSON.stringify(clients));
+        }
+
+        function deleteShipment(event) {
+            const rowIndex = event.target.parentNode.parentNode.rowIndex - 1;
+            clients[username].shipments.splice(rowIndex, 1);
+            localStorage.setItem('clients', JSON.stringify(clients));
+            location.reload();
+        }
+    </script>
+</body>
+</html>
