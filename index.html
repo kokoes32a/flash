@@ -16,18 +16,21 @@
     </div>
 
     <script>
-        const clients = JSON.parse(localStorage.getItem('clients')) || {};
+        let clients = JSON.parse(localStorage.getItem('clients')) || {};
 
         function login() {
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
+            if (!username || !password) {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
+                return;
+            }
+
             if (username === "admin" && password === "adminpassword") {
-               
                 window.location.href = 'admin.html'; // توجيه إلى صفحة الإدارة
             } else if (isClientValid(username, password)) {
                 localStorage.setItem('clientUsername', username); // تخزين اسم المستخدم للعميل
-              
                 window.location.href = 'client.html'; // توجيه إلى صفحة العميل
             } else {
                 alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
@@ -39,19 +42,27 @@
         }
 
         function register() {
-            const username = prompt("اسم المستخدم:");
+            const username = prompt("اسم المستخدم:").trim();
             const password = prompt("كلمة المرور:");
 
-            if (username && password) {
-                if (!clients[username]) { // تحقق من عدم وجود العميل مسبقًا
-                    clients[username] = { password: password, shipments: [] }; // إنشاء عميل جديد مع شحنات فارغة
-                    localStorage.setItem('clients', JSON.stringify(clients));
-                    alert('تم تسجيل العميل الجديد بنجاح!');
-                } else {
-                    alert('اسم المستخدم موجود بالفعل. يرجى اختيار اسم آخر.');
-                }
-            } else {
+            if (!username || !password) {
                 alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
+                return;
+            }
+
+            // التحقق من وجود اسم المستخدم
+            if (!clients[username]) {
+                clients[username] = { password: password, shipments: [] }; // إنشاء عميل جديد
+                localStorage.setItem('clients', JSON.stringify(clients));
+                clients = JSON.parse(localStorage.getItem('clients')); // إعادة تحميل البيانات
+                alert('تم تسجيل العميل الجديد بنجاح!');
+            } else {
+                alert('اسم المستخدم موجود بالفعل. يرجى اختيار اسم آخر.');
             }
         }
     </script>
