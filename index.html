@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة تسجيل الدخول</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #007bff;
+        }
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        button {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -12,7 +49,12 @@
         <input type="text" id="username" placeholder="اسم المستخدم" required>
         <input type="password" id="password" placeholder="كلمة المرور" required>
         <button onclick="login()">دخول</button>
-        <button onclick="register()">تسجيل عميل جديد</button> <!-- زر تسجيل جديد -->
+        <button onclick="showRegisterForm()">تسجيل عميل جديد</button>
+        <div id="registerForm" style="display: none;">
+            <input type="text" id="newUsername" placeholder="اسم المستخدم الجديد">
+            <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة">
+            <button onclick="register()">تسجيل</button>
+        </div>
     </div>
 
     <script>
@@ -37,34 +79,4 @@
             }
         }
 
-        function isClientValid(username, password) {
-            return clients[username] && clients[username].password === password;
-        }
-
-        function register() {
-            const username = prompt("اسم المستخدم:").trim();
-            const password = prompt("كلمة المرور:");
-
-            if (!username || !password) {
-                alert('يرجى إدخال اسم المستخدم وكلمة المرور.');
-                return;
-            }
-
-            if (password.length < 6) {
-                alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
-                return;
-            }
-
-            // التحقق من وجود اسم المستخدم
-            if (!clients[username]) {
-                clients[username] = { password: password, shipments: [] }; // إنشاء عميل جديد
-                localStorage.setItem('clients', JSON.stringify(clients));
-                clients = JSON.parse(localStorage.getItem('clients')); // إعادة تحميل البيانات
-                alert('تم تسجيل العميل الجديد بنجاح!');
-            } else {
-                alert('اسم المستخدم موجود بالفعل. يرجى اختيار اسم آخر.');
-            }
-        }
-    </script>
-</body>
-</html>
+        function isClientValid(username, password
