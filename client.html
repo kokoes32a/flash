@@ -5,11 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صفحة العميل</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* تحسين تنسيق الصفحة */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #007bff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h2>شحناتك</h2>
-        <button onclick="addShipment()">إضافة شحنة جديدة</button> <!-- زر إضافة شحنة جديدة -->
+        <button onclick="toggleForm()">إضافة شحنة جديدة</button>
+        <div id="shipmentForm" style="display:none;">
+            <input type="text" id="name" placeholder="اسم العميل">
+            <input type="text" id="address" placeholder="عنوان العميل">
+            <input type="text" id="collection" placeholder="التحصيل بالشحن">
+            <button onclick="addShipment()">إضافة</button>
+        </div>
         <table id="shipmentTable">
             <thead>
                 <tr>
@@ -28,17 +81,15 @@
         const clients = JSON.parse(localStorage.getItem('clients')) || {};
         const username = localStorage.getItem('clientUsername');
 
-        // التحقق من وجود العميل في البيانات
         if (!clients[username]) {
             alert("لم يتم العثور على العميل، يرجى تسجيل الدخول أولاً.");
             window.location.href = "login.html";
         }
 
-        // عرض الشحنات الخاصة بالعميل عند تحميل الصفحة
         function displayShipments() {
             const shipmentTableBody = document.getElementById('shipmentTableBody');
             shipmentTableBody.innerHTML = '';
-            
+
             clients[username]?.shipments.forEach(shipment => {
                 addRowToTable(shipment.name, shipment.address, shipment.collection, shipment.status);
             });
@@ -57,17 +108,23 @@
             document.getElementById('shipmentTableBody').insertAdjacentHTML('beforeend', newRow);
         }
 
+        function toggleForm() {
+            const form = document.getElementById('shipmentForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
         function addShipment() {
-            const name = prompt("اسم العميل:");
-            const address = prompt("عنوان العميل:");
-            const collection = prompt("التحصيل بالشحن:");
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            const collection = document.getElementById('collection').value;
             const status = 'في انتظار التحميل';
 
             if (name && address && collection) {
                 const newShipment = { name, address, collection, status };
                 clients[username].shipments.push(newShipment);
                 localStorage.setItem('clients', JSON.stringify(clients));
-                displayShipments(); // تحديث العرض بعد الإضافة
+                displayShipments();
+                toggleForm();
             } else {
                 alert("يرجى التأكد من إدخال جميع البيانات بشكل صحيح.");
             }
@@ -84,11 +141,10 @@
             const rowIndex = event.target.parentNode.parentNode.rowIndex - 1;
             clients[username].shipments.splice(rowIndex, 1);
             localStorage.setItem('clients', JSON.stringify(clients));
-            displayShipments(); // تحديث العرض بعد الحذف
+            displayShipments();
         }
 
-        displayShipments(); // استدعاء دالة العرض عند تحميل الصفحة
+        displayShipments();
     </script>
 </body>
 </html>
-``
